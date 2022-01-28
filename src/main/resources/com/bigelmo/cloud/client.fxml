@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bigelmo.cloud.Client">
+  <children>
+    <MenuBar maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" VBox.vgrow="NEVER">
+      <menus>
+        <Menu disable="true" mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="New" />
+            <MenuItem mnemonicParsing="false" text="Open…" />
+            <Menu mnemonicParsing="false" text="Open Recent" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Close" />
+            <MenuItem mnemonicParsing="false" text="Save" />
+            <MenuItem mnemonicParsing="false" text="Save As…" />
+            <MenuItem mnemonicParsing="false" text="Revert" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Preferences…" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" />
+          </items>
+        </Menu>
+        <Menu disable="true" mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Undo" />
+            <MenuItem mnemonicParsing="false" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Cut" />
+            <MenuItem mnemonicParsing="false" text="Copy" />
+            <MenuItem mnemonicParsing="false" text="Paste" />
+            <MenuItem mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Select All" />
+            <MenuItem mnemonicParsing="false" text="Unselect All" />
+          </items>
+        </Menu>
+        <Menu disable="true" mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="50.0" VBox.vgrow="NEVER">
+         <children>
+            <Button fx:id="srvAddDirBtn" alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#srvAddDir" prefWidth="40.0" text="+" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="srvDelDirBtn" alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#srvDelDir" prefWidth="40.0" text="-" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="downloadBtn" alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#download" prefWidth="40.0" text="&gt;" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="40.0" text="O" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="cliAddDirBtn" alignment="CENTER" disable="true" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cliAddDir" prefWidth="40.0" text="+" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="cliDelDirBtn" alignment="CENTER" disable="true" layoutX="39.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cliDelDir" prefWidth="40.0" text="-" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="uploadBtn" alignment="CENTER" disable="true" layoutX="62.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#upload" prefWidth="40.0" text="&lt;" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+            <Button alignment="CENTER" disable="true" layoutX="91.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="40.0" text="O" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+         <padding>
+            <Insets left="3.0" right="3.0" />
+         </padding>
+      </HBox>
+      <HBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
+         <children>
+            <TitledPane fx:id="srvTitledPane" alignment="CENTER_RIGHT" animated="false" maxHeight="1.7976931348623157E308" text="server/" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+               <content>
+                  <ListView fx:id="srvListView">
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </ListView>
+               </content>
+               <HBox.margin>
+                  <Insets left="3.0" right="3.0" />
+               </HBox.margin>
+            </TitledPane>
+            <ListView fx:id="logListView" maxHeight="1.7976931348623157E308" prefWidth="200.0" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets left="3.0" right="3.0" />
+               </HBox.margin>
+            </ListView>
+            <TitledPane fx:id="cliTitledPane" alignment="CENTER_RIGHT" animated="false" maxHeight="1.7976931348623157E308" text="client/" HBox.hgrow="ALWAYS">
+               <content>
+                  <ListView fx:id="cliListView">
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                  </ListView>
+               </content>
+               <HBox.margin>
+                  <Insets left="3.0" right="3.0" />
+               </HBox.margin>
+            </TitledPane>
+         </children>
+         <padding>
+            <Insets left="3.0" right="3.0" />
+         </padding>
+      </HBox>
+    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <Label fx:id="connStatusLabel" maxWidth="-1.0" text="Connection status" HBox.hgrow="ALWAYS">
+          <font>
+            <Font size="11.0" fx:id="x3" />
+          </font>
+               <HBox.margin>
+                  <Insets left="3.0" />
+               </HBox.margin>
+        </Label>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+        <Label font="$x3" maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="BigElmo Cloud Client" HBox.hgrow="NEVER">
+               <HBox.margin>
+                  <Insets right="3.0" />
+               </HBox.margin></Label>
+      </children>
+      <padding>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </padding>
+    </HBox>
+  </children>
+</VBox>

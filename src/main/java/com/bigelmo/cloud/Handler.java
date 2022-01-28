@@ -1,28 +1,30 @@
 package com.bigelmo.cloud;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class Handler implements Runnable {
 
-    private DataInputStream is;
-    private DataOutputStream os;
+    private BufferedInputStream networkIn;
+    private BufferedOutputStream networkOut;
 
     public Handler(Socket socket) throws IOException {
-        is = new DataInputStream(socket.getInputStream());
-        os = new DataOutputStream(socket.getOutputStream());
+        networkIn = new BufferedInputStream(socket.getInputStream());
+        networkOut = new BufferedOutputStream(socket.getOutputStream());
     }
 
     @Override
     public void run() {
         try {
             while (true) {
-                String message = is.readUTF();
-                System.out.println("received: " + message);
-                os.writeUTF(message);
-                os.flush();
+                File file = new File("files_on_server/new_file_from_client.txt");
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                byte[] byteArr = new byte[8192];
+                int count;
+                while ((count = networkIn.read(byteArr)) != -1) {
+                    bos.write(byteArr, 0, count);
+                }
+                bos.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
