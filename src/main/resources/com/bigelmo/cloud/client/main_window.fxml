@@ -8,13 +8,13 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bigelmo.cloud.Client">
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bigelmo.cloud.client.MainWindow">
   <children>
     <MenuBar maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" VBox.vgrow="NEVER">
       <menus>
@@ -72,7 +72,7 @@
                   <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
                </HBox.margin>
             </Button>
-            <Button alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="40.0" text="O" HBox.hgrow="NEVER">
+            <Button fx:id="srvUpBtn" alignment="CENTER" disable="true" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#srvUp" prefWidth="40.0" text="Up" HBox.hgrow="NEVER">
                <HBox.margin>
                   <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
                </HBox.margin>
@@ -93,7 +93,7 @@
                   <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
                </HBox.margin>
             </Button>
-            <Button alignment="CENTER" disable="true" layoutX="91.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="40.0" text="O" HBox.hgrow="NEVER">
+            <Button fx:id="cliUpBtn" alignment="CENTER" disable="true" layoutX="91.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cliUp" prefWidth="40.0" text="Up" HBox.hgrow="NEVER">
                <HBox.margin>
                   <Insets bottom="6.0" left="3.0" right="3.0" top="6.0" />
                </HBox.margin>
@@ -105,43 +105,66 @@
       </HBox>
       <HBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
          <children>
-            <TitledPane fx:id="srvTitledPane" alignment="CENTER_RIGHT" animated="false" maxHeight="1.7976931348623157E308" text="server/" textAlignment="CENTER" HBox.hgrow="ALWAYS">
-               <content>
-                  <ListView fx:id="srvListView">
-                     <padding>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </padding>
+            <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets left="3.0" right="3.0" />
+               </HBox.margin>
+               <children>
+                  <Label fx:id="srvNameLabel" contentDisplay="CENTER" text="Server">
+                     <VBox.margin>
+                        <Insets bottom="3.0" top="3.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="srvCurrDirField" editable="false">
+                     <VBox.margin>
+                        <Insets bottom="3.0" top="3.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <ListView fx:id="srvListView" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets top="3.0" />
+                     </VBox.margin>
                   </ListView>
-               </content>
+               </children>
+            </VBox>
+            <VBox prefWidth="200.0" HBox.hgrow="NEVER">
                <HBox.margin>
                   <Insets left="3.0" right="3.0" />
                </HBox.margin>
-            </TitledPane>
-            <ListView fx:id="logListView" maxHeight="1.7976931348623157E308" prefWidth="200.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <ListView fx:id="logListView" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets left="3.0" right="3.0" />
                </HBox.margin>
-            </ListView>
-            <TitledPane fx:id="cliTitledPane" alignment="CENTER_RIGHT" animated="false" maxHeight="1.7976931348623157E308" text="client/" HBox.hgrow="ALWAYS">
-               <content>
-                  <ListView fx:id="cliListView">
-                     <padding>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </padding>
+               <children>
+                  <Label fx:id="cliNameLabel" contentDisplay="CENTER" text="Client">
+                     <VBox.margin>
+                        <Insets bottom="3.0" top="3.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="cliCurrDirField" editable="false">
+                     <VBox.margin>
+                        <Insets bottom="3.0" top="3.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <ListView fx:id="cliListView" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets top="3.0" />
+                     </VBox.margin>
                   </ListView>
-               </content>
-               <HBox.margin>
-                  <Insets left="3.0" right="3.0" />
-               </HBox.margin>
-            </TitledPane>
+               </children>
+            </VBox>
          </children>
          <padding>
             <Insets left="3.0" right="3.0" />
          </padding>
       </HBox>
-    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+    <HBox id="HBox" alignment="CENTER" prefHeight="30.0" spacing="5.0" VBox.vgrow="NEVER">
       <children>
-        <Label fx:id="connStatusLabel" maxWidth="-1.0" text="Connection status" HBox.hgrow="ALWAYS">
+        <Label fx:id="connStatusLabel" maxWidth="-1.0" text="Connection status" HBox.hgrow="NEVER">
           <font>
             <Font size="11.0" fx:id="x3" />
           </font>
@@ -150,7 +173,7 @@
                </HBox.margin>
         </Label>
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-        <Label font="$x3" maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="BigElmo Cloud Client" HBox.hgrow="NEVER">
+        <Label alignment="CENTER_RIGHT" font="$x3" maxWidth="-1.0" text="BigElmo Cloud Client" HBox.hgrow="NEVER">
                <HBox.margin>
                   <Insets right="3.0" />
                </HBox.margin></Label>
