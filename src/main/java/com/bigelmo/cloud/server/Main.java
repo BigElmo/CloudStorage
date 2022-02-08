@@ -33,6 +33,7 @@ public class Main {
                         }
                     });
             ChannelFuture future = bootstrap.bind(PORT).sync();
+            System.out.println(String.format("server started at port: %d", PORT));
             // server started!
             future.channel().closeFuture().sync(); // block
         } catch (InterruptedException e) {

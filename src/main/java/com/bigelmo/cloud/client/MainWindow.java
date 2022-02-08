@@ -10,21 +10,29 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
+
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 public class MainWindow implements Initializable {
 
-    public static final String SERVER = "localhost";
-    private static final int PORT = 8189;
+    private Path currentCliDir;
 
     public Button srvAddDirBtn;
     public Button srvDelDirBtn;
@@ -46,37 +54,38 @@ public class MainWindow implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        connStatusLabel.setText("Disconnected");
-        logListView.getItems().add("Hello, #username#!");
         logListView.getItems().add("Connecting to server...");
+        Network.connect("localhost", 8189);
 
-        EventLoopGroup worker = new NioEventLoopGroup();
         try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(worker)
-                    .channel(NioSocketChannel.class)
-                    .remoteAddress(new InetSocketAddress(SERVER, PORT))
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel channel) {
-                            channel.pipeline().addLast(
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    new ObjectEncoder(),
-                                    new ClientHandler()
-                            );
-                        }
-                    });
-            ChannelFuture future = bootstrap.connect().sync();
-            System.out.println("connected");
-            future.channel().closeFuture().sync();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-//            logListView.getItems().add(ex.getMessage());
-        } finally {
-            worker.shutdownGracefully();
-            logListView.getItems().add("Disconnected");
-            connStatusLabel.setText("Disconnected");
+            cliNameLabel.setText(InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            cliNameLabel.setText("This Computer");
         }
+
+        currentCliDir = Paths.get(System.getProperty("user.home"));
+        updateCliListView();
+    }
+
+    private void updateCliListView() {
+        try {
+            cliCurrDirField.setText(currentCliDir.toString());
+            cliListView.getItems().clear();
+            Files.list(currentCliDir)
+                    .map(p -> p.getFileName().toString())
+                    .sorted()
+                    .forEach(f -> cliListView.getItems().add(f));
+            cliUpBtn.setDisable(currentCliDir.getParent() == null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Path getSelectedCliItem() {
+        if (cliListView.getSelectionModel().getSelectedItem() != null) {
+            return currentCliDir.resolve(cliListView.getSelectionModel().getSelectedItem());
+        }
+        return currentCliDir;
     }
 
     public void srvAddDir(ActionEvent actionEvent) {
@@ -101,5 +110,25 @@ public class MainWindow implements Initializable {
     }
 
     public void cliUp(ActionEvent actionEvent) {
+        currentCliDir = currentCliDir.getParent().normalize();
+        Platform.runLater(this::updateCliListView);
+    }
+
+    public void cliListView(MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 1) {
+            if (Files.isDirectory(getSelectedCliItem())) {
+                uploadBtn.setDisable(true);
+            } else {
+                uploadBtn.setDisable(false);
+            }
+        }
+
+        if (mouseEvent.getClickCount() == 2) {
+            Path selected = getSelectedCliItem();
+            if (Files.isDirectory(selected)) {
+                currentCliDir = selected;
+                Platform.runLater(this::updateCliListView);
+            }
+        }
     }
 }

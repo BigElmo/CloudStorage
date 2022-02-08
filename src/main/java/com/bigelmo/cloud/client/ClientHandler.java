@@ -12,13 +12,14 @@ import java.nio.file.Paths;
 
 public class ClientHandler extends SimpleChannelInboundHandler<ExchangeMessage> {
 
+    private Path rootDir;
     private Path currentDir;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // init client dir
-        Files.createDirectories(Paths.get("client/clientData"));
-        currentDir = Paths.get("client/clientData");
+        rootDir = Paths.get(System.getProperty("user.home"));
+        currentDir = rootDir;
     }
 
     @Override

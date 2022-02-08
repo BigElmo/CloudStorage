@@ -14,14 +14,24 @@ import java.nio.file.Paths;
 
 public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> {
 
+    private Path rootDir;
     private Path currentDir;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // init client dir
-        Files.createDirectories(Paths.get("server/clientData"));
-        currentDir = Paths.get("server/clientData");
+        System.out.println("new client connected!");
+        rootDir = Paths.get("server/clientData");
+        if (Files.notExists(rootDir)) {
+            Files.createDirectories(rootDir);
+        }
+        currentDir = rootDir;
 //        sendListMessage(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("client disconnected!");
     }
 
     @Override
