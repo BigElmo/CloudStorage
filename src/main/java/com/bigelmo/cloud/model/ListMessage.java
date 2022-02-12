@@ -11,10 +11,16 @@ import java.util.stream.Collectors;
 @Data
 public class ListMessage implements ExchangeMessage {
 
-    private final List<String> files;
+    private final boolean isRootDir;
+    private final boolean isHasParent;
+    private final Path path;
+    private final List<String> fileNames;
 
-    public ListMessage(Path path) throws IOException {
-        files = Files.list(path)
+    public ListMessage(Path path, boolean isRootDir) throws IOException {
+        this.path = path;
+        isHasParent = (path.getParent() != null);
+        this.isRootDir = isRootDir;
+        fileNames = Files.list(path)
                 .map(p -> p.getFileName().toString())
                 .collect(Collectors.toList());
     }

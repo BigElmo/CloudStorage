@@ -19,45 +19,47 @@ public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // init client dir
-        System.out.println("new client connected!");
-        rootDir = Paths.get("server/clientData");
+        System.out.println("Client connected!");
+        rootDir = Paths.get("server/clientData/clientName");
         if (Files.notExists(rootDir)) {
             Files.createDirectories(rootDir);
         }
         currentDir = rootDir;
-//        sendListMessage(ctx);
+        sendListMessage(ctx);
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("client disconnected!");
+    public void channelInactive(ChannelHandlerContext ctx) {
+        System.out.println("Client disconnected!");
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx,
                                 ExchangeMessage exchangeMessage) throws Exception {
+        System.out.println("Got something from client...");
         switch (exchangeMessage.getType()) {
             case FILE_REQUEST:
-                processFileRequest((FileRequestMessage) exchangeMessage, ctx);
+                processMessage((FileRequestMessage) exchangeMessage, ctx);
                 break;
             case FILE:
-                processFile((FileMessage) exchangeMessage, ctx);
+                processMessage((FileMessage) exchangeMessage, ctx);
                 break;
         }
     }
 
     private void sendListMessage(ChannelHandlerContext ctx) throws IOException {
-        ctx.writeAndFlush(new ListMessage(currentDir));
+        boolean isRootDir = (currentDir == rootDir);
+        ctx.writeAndFlush(new ListMessage(currentDir, isRootDir));
+        System.out.println("Files list sent!");
     }
 
-    private void processFile(FileMessage fileMessage, ChannelHandlerContext ctx) throws IOException {
-        Files.write(currentDir.resolve(fileMessage.getFileName()), fileMessage.getBytes());
+    private void processMessage(FileMessage file, ChannelHandlerContext ctx) throws IOException {
+        Files.write(currentDir.resolve(file.getFileName()), file.getBytes());
         sendListMessage(ctx);
     }
 
-    private void processFileRequest(FileRequestMessage fileRequestMessage, ChannelHandlerContext ctx) throws IOException {
-        Path path = currentDir.resolve(fileRequestMessage.getFileName());
+    private void processMessage(FileRequestMessage fileRequest, ChannelHandlerContext ctx) throws IOException {
+        Path path = currentDir.resolve(fileRequest.getFileName());
         ctx.writeAndFlush(new FileMessage(path));
     }
 }

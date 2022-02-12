@@ -1,15 +1,6 @@
 package com.bigelmo.cloud.client;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import com.bigelmo.cloud.model.ListMessage;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
@@ -22,7 +13,6 @@ import javafx.scene.text.Font;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -33,6 +23,7 @@ import java.util.ResourceBundle;
 public class MainWindow implements Initializable {
 
     private Path currentCliDir;
+    private Network network;
 
     public Button srvAddDirBtn;
     public Button srvDelDirBtn;
@@ -55,19 +46,25 @@ public class MainWindow implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         logListView.getItems().add("Connecting to server...");
-        Network.connect("localhost", 8189);
+        network = new Network("localhost", 8189);
+        Thread thread = new Thread(network);
+        thread.setDaemon(true);
+        thread.start();
 
         try {
             cliNameLabel.setText(InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException e) {
             cliNameLabel.setText("This Computer");
         }
-
         currentCliDir = Paths.get(System.getProperty("user.home"));
         updateCliListView();
     }
 
-    private void updateCliListView() {
+    public Path getCurrentCliDir() {
+        return currentCliDir;
+    }
+
+    public void updateCliListView() {
         try {
             cliCurrDirField.setText(currentCliDir.toString());
             cliListView.getItems().clear();
@@ -79,6 +76,13 @@ public class MainWindow implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateSrvListView(ListMessage list) {
+        srvCurrDirField.setText(list.getPath().toString());
+        srvListView.getItems().clear();
+        srvListView.getItems().addAll(list.getFileNames());
+        srvUpBtn.setDisable(list.isRootDir() || !list.isHasParent());
     }
 
     private Path getSelectedCliItem() {
@@ -116,11 +120,7 @@ public class MainWindow implements Initializable {
 
     public void cliListView(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 1) {
-            if (Files.isDirectory(getSelectedCliItem())) {
-                uploadBtn.setDisable(true);
-            } else {
-                uploadBtn.setDisable(false);
-            }
+            uploadBtn.setDisable(Files.isDirectory(getSelectedCliItem()));
         }
 
         if (mouseEvent.getClickCount() == 2) {

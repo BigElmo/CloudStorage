@@ -1,27 +1,23 @@
-package com.bigelmo.cloud.client;
+package com.bigelmo.cloud.server;
 
-import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.net.InetSocketAddress;
+public class Network {
 
-public class Network implements Runnable{
-
-    private final String host;
     private final int port;
     private Channel channel;
 
-    public Network(String host, int port) {
-        this.host = host;
+    public Network(int port) {
         this.port = port;
     }
 
@@ -29,31 +25,32 @@ public class Network implements Runnable{
         return channel;
     }
 
-    public void run() {
+    public void start() {
+        EventLoopGroup auth = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
         try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(worker)
-                    .channel(NioSocketChannel.class)
-                    .remoteAddress(new InetSocketAddress(host, port))
-                    .handler(new ChannelInitializer<SocketChannel>() {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(auth, worker)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel channel) {
-                            channel.pipeline().addLast(
+                        protected void initChannel(SocketChannel socketChannel) {
+                            socketChannel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new ClientHandler()
+                                    new ServerHandler()
                             );
                         }
                     });
-            ChannelFuture future = bootstrap.connect().sync();
-            System.out.println("Network started");
+            ChannelFuture future = bootstrap.bind(port).sync();
+            System.out.printf("Bind port: %d%n", port);
             channel = future.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
             System.out.println("Network interrupted!");
             e.printStackTrace();
         } finally {
+            auth.shutdownGracefully();
             worker.shutdownGracefully();
         }
     }
