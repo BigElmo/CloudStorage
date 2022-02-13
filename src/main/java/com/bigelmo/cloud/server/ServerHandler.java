@@ -39,9 +39,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> 
         System.out.println("Got something from client...");
         switch (exchangeMessage.getType()) {
             case FILE_REQUEST:
+                System.out.println("got file request");
                 processMessage((FileRequestMessage) exchangeMessage, ctx);
                 break;
             case FILE:
+                System.out.println("got file");
                 processMessage((FileMessage) exchangeMessage, ctx);
                 break;
         }
@@ -55,11 +57,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> 
 
     private void processMessage(FileMessage file, ChannelHandlerContext ctx) throws IOException {
         Files.write(currentDir.resolve(file.getFileName()), file.getBytes());
+        System.out.println("file saved on disk");
         sendListMessage(ctx);
     }
 
     private void processMessage(FileRequestMessage fileRequest, ChannelHandlerContext ctx) throws IOException {
         Path path = currentDir.resolve(fileRequest.getFileName());
         ctx.writeAndFlush(new FileMessage(path));
+        System.out.println("file sent");
     }
 }

@@ -46,12 +46,14 @@ public class Network {
             System.out.printf("Bind port: %d%n", port);
             channel = future.channel();
             channel.closeFuture().sync();
+            System.out.println("Channel closed");
         } catch (InterruptedException e) {
             System.out.println("Network interrupted!");
             e.printStackTrace();
         } finally {
             auth.shutdownGracefully();
             worker.shutdownGracefully();
+            System.out.println("network stopped");
         }
     }
 }

@@ -57,7 +57,7 @@ public class MainWindow implements Initializable {
             cliNameLabel.setText("This Computer");
         }
         currentCliDir = Paths.get(System.getProperty("user.home"));
-        updateCliListView();
+        Platform.runLater(this::updateCliListView);
     }
 
     public Path getCurrentCliDir() {
