@@ -1,17 +1,12 @@
 package com.bigelmo.cloud.client;
 
-import com.bigelmo.cloud.model.ListMessage;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.nio.file.Paths;
-
 public class App extends Application {
-
-    private Network network;
 
     @Override
     public void start(Stage primaryStage) throws Exception {

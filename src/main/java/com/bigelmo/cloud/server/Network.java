@@ -1,7 +1,6 @@
 package com.bigelmo.cloud.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -15,14 +14,9 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 public class Network {
 
     private final int port;
-    private Channel channel;
 
     public Network(int port) {
         this.port = port;
-    }
-
-    public Channel getChannel() {
-        return channel;
     }
 
     public void start() {
@@ -44,8 +38,7 @@ public class Network {
                     });
             ChannelFuture future = bootstrap.bind(port).sync();
             System.out.printf("Bind port: %d%n", port);
-            channel = future.channel();
-            channel.closeFuture().sync();
+            future.channel().closeFuture().sync();
             System.out.println("Channel closed");
         } catch (InterruptedException e) {
             System.out.println("Network interrupted!");

@@ -1,5 +1,6 @@
 package com.bigelmo.cloud.client;
 
+import com.bigelmo.cloud.model.FileMessage;
 import com.bigelmo.cloud.model.ListMessage;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -46,7 +47,7 @@ public class MainWindow implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         logListView.getItems().add("Connecting to server...");
-        network = new Network("localhost", 8189);
+        network = new Network("localhost", 8189, this);
         Thread thread = new Thread(network);
         thread.setDaemon(true);
         thread.start();
@@ -79,10 +80,12 @@ public class MainWindow implements Initializable {
     }
 
     public void updateSrvListView(ListMessage list) {
-        srvCurrDirField.setText(list.getPath().toString());
-        srvListView.getItems().clear();
-        srvListView.getItems().addAll(list.getFileNames());
-        srvUpBtn.setDisable(list.isRootDir() || !list.isHasParent());
+        Platform.runLater(() -> {
+            srvCurrDirField.setText(list.getPath().toString());
+            srvListView.getItems().clear();
+            srvListView.getItems().addAll(list.getFileNames());
+            srvUpBtn.setDisable(list.isRootDir() || !list.isHasParent());
+        });
     }
 
     private Path getSelectedCliItem() {
@@ -92,7 +95,9 @@ public class MainWindow implements Initializable {
         return currentCliDir;
     }
 
-    public void srvAddDir(ActionEvent actionEvent) {
+    public void srvAddDir(ActionEvent actionEvent) throws IOException {
+        network.getChannel().writeAndFlush(new FileMessage(Paths.get("server/ttt.txt")));
+
     }
 
     public void srvDelDir(ActionEvent actionEvent) {
@@ -107,7 +112,8 @@ public class MainWindow implements Initializable {
     public void cliDelDir(ActionEvent actionEvent) {
     }
 
-    public void upload(ActionEvent actionEvent) {
+    public void upload(ActionEvent actionEvent) throws IOException {
+        network.getChannel().writeAndFlush(new FileMessage(getSelectedCliItem()));
     }
 
     public void srvUp(ActionEvent actionEvent) {

@@ -19,10 +19,12 @@ public class Network implements Runnable{
     private final String host;
     private final int port;
     private Channel channel;
+    private MainWindow mainWindow;
 
-    public Network(String host, int port) {
+    public Network(String host, int port, MainWindow mainWindow) {
         this.host = host;
         this.port = port;
+        this.mainWindow = mainWindow;
     }
 
     public Channel getChannel() {
@@ -42,7 +44,7 @@ public class Network implements Runnable{
                             channel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new ClientHandler()
+                                    new ClientHandler(mainWindow)
                             );
                         }
                     });
@@ -50,11 +52,13 @@ public class Network implements Runnable{
             System.out.println("Network started");
             channel = future.channel();
             channel.closeFuture().sync();
+            System.out.println("Channel closed");
         } catch (InterruptedException e) {
             System.out.println("Network interrupted!");
             e.printStackTrace();
         } finally {
             worker.shutdownGracefully();
+            System.out.println("network stopped");
         }
     }
 }
