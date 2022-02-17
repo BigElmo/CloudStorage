@@ -32,7 +32,7 @@ public class Network {
                             socketChannel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new ServerHandler()
+                                    new ExchangeMessageHandler()
                             );
                         }
                     });

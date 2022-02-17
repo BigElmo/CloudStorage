@@ -1,5 +1,6 @@
 package com.bigelmo.cloud.client;
 
+import com.bigelmo.cloud.model.ExchangeMessage;
 import com.bigelmo.cloud.model.FileMessage;
 import com.bigelmo.cloud.model.ListMessage;
 import javafx.application.Platform;
@@ -21,7 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-public class MainWindow implements Initializable {
+public class MainWindow implements Initializable, MainWindowHandler {
 
     private Path currentCliDir;
     private Network network;
@@ -47,11 +48,6 @@ public class MainWindow implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         logListView.getItems().add("Connecting to server...");
-        network = new Network("localhost", 8189, this);
-        Thread thread = new Thread(network);
-        thread.setDaemon(true);
-        thread.start();
-
         try {
             cliNameLabel.setText(InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException e) {
@@ -59,6 +55,43 @@ public class MainWindow implements Initializable {
         }
         currentCliDir = Paths.get(System.getProperty("user.home"));
         Platform.runLater(this::updateCliListView);
+
+        network = new Network("localhost", 8189, this);
+        network.start();
+        System.out.println("MainWindow initialized");
+    }
+
+    public void process(ExchangeMessage message) {
+        switch (message.getType()) {
+            case FILE:
+                System.out.println("got file");
+                processMessage((FileMessage) message);
+                break;
+            case LIST:
+                System.out.println("got files list");
+                processMessage((ListMessage) message);
+                break;
+        }
+    }
+
+    private void processMessage(FileMessage file) {
+        System.out.println("processing new file");
+        try {
+            Files.write(getCurrentCliDir().resolve(file.getFileName()), file.getBytes());
+            System.out.println("file saved");
+        } catch (IOException e) {
+            System.out.println("Error saving file in current dir!");
+            e.printStackTrace();
+        }
+    }
+
+    private void processMessage(ListMessage list) {
+        System.out.println("processing new file list");
+        Platform.runLater(() -> {
+            srvListView.getItems().clear();
+            srvListView.getItems().addAll(list.getFileNames());
+        });
+        System.out.println("server file list updated");
     }
 
     public Path getCurrentCliDir() {
@@ -96,8 +129,6 @@ public class MainWindow implements Initializable {
     }
 
     public void srvAddDir(ActionEvent actionEvent) throws IOException {
-        network.getChannel().writeAndFlush(new FileMessage(Paths.get("server/ttt.txt")));
-
     }
 
     public void srvDelDir(ActionEvent actionEvent) {

@@ -14,5 +14,10 @@ public class App extends Application {
         Parent parent = FXMLLoader.load(getClass().getResource("main_window.fxml"));
         primaryStage.setScene(new Scene(parent));
         primaryStage.show();
+        System.out.println("MainWindow show");
+    }
+
+    public void stop() {
+        System.out.println("App stopped");
     }
 }

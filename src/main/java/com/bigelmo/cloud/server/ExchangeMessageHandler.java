@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
-public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> {
+public class ExchangeMessageHandler extends SimpleChannelInboundHandler<ExchangeMessage> {
 
     private Path rootDir;
     private Path currentDir;
@@ -66,18 +66,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<ExchangeMessage> 
 
     private void sendListMessage(ChannelHandlerContext ctx) throws IOException {
         boolean isRootDir = (currentDir == rootDir);
-        ListMessage message = new ListMessage(currentDir, isRootDir);
-        log.info("sent: {}", message);
-        ctx.writeAndFlush(message);
+        ctx.writeAndFlush(new ListMessage(currentDir, isRootDir));
         System.out.println("Files list sent!");
     }
 
     private void processMessage(FileMessage file, ChannelHandlerContext ctx) throws IOException {
         Files.write(currentDir.resolve(file.getFileName()), file.getBytes());
         System.out.println("file saved in current dir");
-
-        ctx.writeAndFlush(new FileMessage(Paths.get("server/clientData/clientName/Test.txt")));
-        System.out.println("file sent");
         sendListMessage(ctx);
     }
 
