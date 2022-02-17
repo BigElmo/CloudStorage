@@ -1,4 +1,4 @@
-package com.bigelmo.cloud;
+package com.bigelmo.cloud.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,8 +10,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent parent = FXMLLoader.load(getClass().getResource("client.fxml"));
+        System.out.println("App start");
+        Parent parent = FXMLLoader.load(getClass().getResource("main_window.fxml"));
         primaryStage.setScene(new Scene(parent));
         primaryStage.show();
+        System.out.println("MainWindow show");
+    }
+
+    public void stop() {
+        System.out.println("App stopped");
     }
 }
