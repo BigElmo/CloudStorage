@@ -4,4 +4,5 @@ import com.bigelmo.cloud.model.ExchangeMessage;
 
 public interface MainWindowHandler {
     void process(ExchangeMessage exchangeMessage);
+    void setConnectionStatus(String status);
 }

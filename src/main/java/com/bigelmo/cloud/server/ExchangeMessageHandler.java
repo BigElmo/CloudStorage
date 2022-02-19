@@ -1,9 +1,6 @@
 package com.bigelmo.cloud.server;
 
-import com.bigelmo.cloud.model.ExchangeMessage;
-import com.bigelmo.cloud.model.FileMessage;
-import com.bigelmo.cloud.model.FileRequestMessage;
-import com.bigelmo.cloud.model.ListMessage;
+import com.bigelmo.cloud.model.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +45,18 @@ public class ExchangeMessageHandler extends SimpleChannelInboundHandler<Exchange
                 System.out.println("got file");
                 processMessage((FileMessage) exchangeMessage, ctx);
                 break;
+            case DIR_OUT:
+                System.out.println("got dir up request");
+                processMessage((DirOutMessage) exchangeMessage, ctx);
+                break;
+            case DIR_IN:
+                System.out.println("got dir in request");
+                processMessage((DirInMessage) exchangeMessage, ctx);
+                break;
+            case INFO_REQUEST:
+                System.out.println("got info request");
+                processMessage((RequestInfoMessage) exchangeMessage, ctx);
+                break;
         }
     }
 
@@ -65,7 +74,7 @@ public class ExchangeMessageHandler extends SimpleChannelInboundHandler<Exchange
     }
 
     private void sendListMessage(ChannelHandlerContext ctx) throws IOException {
-        boolean isRootDir = (currentDir == rootDir);
+        boolean isRootDir = (currentDir.equals(rootDir));
         ctx.writeAndFlush(new ListMessage(currentDir, isRootDir));
         System.out.println("Files list sent!");
     }
@@ -79,5 +88,26 @@ public class ExchangeMessageHandler extends SimpleChannelInboundHandler<Exchange
     private void processMessage(FileRequestMessage fileRequest, ChannelHandlerContext ctx) throws IOException {
         ctx.writeAndFlush(new FileMessage(currentDir.resolve(fileRequest.getFileName())));
         System.out.println("file sent");
+    }
+
+    private void processMessage(DirOutMessage dirOut, ChannelHandlerContext ctx) throws IOException {
+        if (!currentDir.equals(rootDir)) {
+            currentDir = currentDir.getParent();
+        }
+        sendListMessage(ctx);
+    }
+
+    private void processMessage(DirInMessage dirIn, ChannelHandlerContext ctx) throws IOException {
+        System.out.println("processing dir in request");
+        Path newPath = currentDir.resolve(dirIn.getNewDirName());
+        if (Files.isDirectory(newPath)) {
+            currentDir = newPath;
+        }
+        sendListMessage(ctx);
+    }
+
+    private void processMessage(RequestInfoMessage requestInfo, ChannelHandlerContext ctx) {
+        Path path = currentDir.resolve(requestInfo.getFileName());
+        ctx.writeAndFlush(new InfoMessage(Files.isDirectory(path)));
     }
 }

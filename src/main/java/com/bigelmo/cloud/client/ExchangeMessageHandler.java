@@ -27,9 +27,6 @@ public class ExchangeMessageHandler extends SimpleChannelInboundHandler<Exchange
     protected void channelRead0(ChannelHandlerContext ctx,
                                 ExchangeMessage exchangeMessage) {
         System.out.println("Got something from server...");
-        /*
-        ПОЧЕМУ НЕ ПРИХОДИТ LIST?!
-         */
         mainWindow.process(exchangeMessage);
     }
 
