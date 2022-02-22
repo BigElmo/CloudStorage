@@ -15,8 +15,8 @@ public class ListMessage implements ExchangeMessage {
     private final String pathName;
     private final List<String> fileNames;
 
-    public ListMessage(Path path, boolean isRootDir) throws IOException {
-        pathName = path.normalize().toString();
+    public ListMessage(Path path, String mask, boolean isRootDir) throws IOException {
+        pathName = (path.toString()).replace(mask, "");
         this.isRootDir = isRootDir;
         fileNames = Files.list(path)
                 .map(p -> p.getFileName().toString())
