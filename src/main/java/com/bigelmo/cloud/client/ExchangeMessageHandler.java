@@ -19,13 +19,13 @@ public class ExchangeMessageHandler extends SimpleChannelInboundHandler<Exchange
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws IOException {
+    public void channelActive(ChannelHandlerContext ctx) {
         System.out.println("Connected to server");
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx,
-                                ExchangeMessage exchangeMessage) throws Exception {
+                                ExchangeMessage exchangeMessage) {
         System.out.println("Got something from server...");
         mainWindow.process(exchangeMessage);
     }

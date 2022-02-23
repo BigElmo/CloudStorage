@@ -12,13 +12,11 @@ import java.util.stream.Collectors;
 public class ListMessage implements ExchangeMessage {
 
     private final boolean isRootDir;
-    private final boolean isHasParent;
-    private final Path path;
+    private final String pathName;
     private final List<String> fileNames;
 
-    public ListMessage(Path path, boolean isRootDir) throws IOException {
-        this.path = path;
-        isHasParent = (path.getParent() != null);
+    public ListMessage(Path path, String mask, boolean isRootDir) throws IOException {
+        pathName = (path.toString()).replace(mask, "");
         this.isRootDir = isRootDir;
         fileNames = Files.list(path)
                 .map(p -> p.getFileName().toString())

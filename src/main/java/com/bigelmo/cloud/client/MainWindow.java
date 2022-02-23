@@ -1,8 +1,6 @@
 package com.bigelmo.cloud.client;
 
-import com.bigelmo.cloud.model.ExchangeMessage;
-import com.bigelmo.cloud.model.FileMessage;
-import com.bigelmo.cloud.model.ListMessage;
+import com.bigelmo.cloud.model.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
@@ -26,6 +24,8 @@ public class MainWindow implements Initializable, MainWindowHandler {
 
     private Path currentCliDir;
     private Network network;
+    private String cliSelected;
+    private String srvSelected;
 
     public Button srvAddDirBtn;
     public Button srvDelDirBtn;
@@ -34,7 +34,6 @@ public class MainWindow implements Initializable, MainWindowHandler {
     public Button cliDelDirBtn;
     public Button uploadBtn;
     public ListView<String> srvListView;
-    public ListView<String> logListView;
     public ListView<String> cliListView;
     public Label connStatusLabel;
     public Font x3;
@@ -47,7 +46,7 @@ public class MainWindow implements Initializable, MainWindowHandler {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        logListView.getItems().add("Connecting to server...");
+        connStatusLabel.setText("Connecting to server......");
         try {
             cliNameLabel.setText(InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException e) {
@@ -71,7 +70,16 @@ public class MainWindow implements Initializable, MainWindowHandler {
                 System.out.println("got files list");
                 processMessage((ListMessage) message);
                 break;
+            case INFO:
+                System.out.println("got path info");
+                processMessage((InfoMessage) message);
+                break;
         }
+    }
+
+    @Override
+    public void setConnectionStatus(String status) {
+        connStatusLabel.setText(status);
     }
 
     private void processMessage(FileMessage file) {
@@ -83,15 +91,25 @@ public class MainWindow implements Initializable, MainWindowHandler {
             System.out.println("Error saving file in current dir!");
             e.printStackTrace();
         }
+        Platform.runLater(this::updateCliListView);
     }
 
     private void processMessage(ListMessage list) {
         System.out.println("processing new file list");
         Platform.runLater(() -> {
+            downloadBtn.setDisable(true);
+            srvUpBtn.setDisable(list.isRootDir());
+            srvCurrDirField.clear();
+            srvCurrDirField.setText(list.getPathName());
             srvListView.getItems().clear();
             srvListView.getItems().addAll(list.getFileNames());
         });
         System.out.println("server file list updated");
+    }
+
+    private void processMessage(InfoMessage info) {
+        System.out.println("processing new path info");
+        downloadBtn.setDisable(info.isDir());
     }
 
     public Path getCurrentCliDir() {
@@ -100,6 +118,7 @@ public class MainWindow implements Initializable, MainWindowHandler {
 
     public void updateCliListView() {
         try {
+            uploadBtn.setDisable(true);
             cliCurrDirField.setText(currentCliDir.toString());
             cliListView.getItems().clear();
             Files.list(currentCliDir)
@@ -112,29 +131,14 @@ public class MainWindow implements Initializable, MainWindowHandler {
         }
     }
 
-    public void updateSrvListView(ListMessage list) {
-        Platform.runLater(() -> {
-            srvCurrDirField.setText(list.getPath().toString());
-            srvListView.getItems().clear();
-            srvListView.getItems().addAll(list.getFileNames());
-            srvUpBtn.setDisable(list.isRootDir() || !list.isHasParent());
-        });
-    }
-
-    private Path getSelectedCliItem() {
-        if (cliListView.getSelectionModel().getSelectedItem() != null) {
-            return currentCliDir.resolve(cliListView.getSelectionModel().getSelectedItem());
-        }
-        return currentCliDir;
-    }
-
-    public void srvAddDir(ActionEvent actionEvent) throws IOException {
+    public void srvAddDir(ActionEvent actionEvent) {
     }
 
     public void srvDelDir(ActionEvent actionEvent) {
     }
 
     public void download(ActionEvent actionEvent) {
+        network.getChannel().writeAndFlush(new FileRequestMessage(srvSelected));
     }
 
     public void cliAddDir(ActionEvent actionEvent) {
@@ -144,10 +148,11 @@ public class MainWindow implements Initializable, MainWindowHandler {
     }
 
     public void upload(ActionEvent actionEvent) throws IOException {
-        network.getChannel().writeAndFlush(new FileMessage(getSelectedCliItem()));
+        network.getChannel().writeAndFlush(new FileMessage(currentCliDir.resolve(cliSelected)));
     }
 
     public void srvUp(ActionEvent actionEvent) {
+        network.getChannel().writeAndFlush(new DirOutMessage());
     }
 
     public void cliUp(ActionEvent actionEvent) {
@@ -156,15 +161,31 @@ public class MainWindow implements Initializable, MainWindowHandler {
     }
 
     public void cliListView(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 1) {
-            uploadBtn.setDisable(Files.isDirectory(getSelectedCliItem()));
-        }
+        cliSelected = cliListView.getSelectionModel().getSelectedItem();
+        if (cliSelected != null) {
+            Path path = currentCliDir.resolve(cliSelected);
+            if (mouseEvent.getClickCount() == 1) {
+                uploadBtn.setDisable(Files.isDirectory(path));
+            }
 
-        if (mouseEvent.getClickCount() == 2) {
-            Path selected = getSelectedCliItem();
-            if (Files.isDirectory(selected)) {
-                currentCliDir = selected;
-                Platform.runLater(this::updateCliListView);
+            if (mouseEvent.getClickCount() == 2) {
+                if (Files.isDirectory(path)) {
+                    currentCliDir = path;
+                    Platform.runLater(this::updateCliListView);
+                }
+            }
+        }
+    }
+
+    public void srvListView(MouseEvent mouseEvent) {
+        srvSelected = srvListView.getSelectionModel().getSelectedItem();
+        if (srvSelected != null) {
+            if (mouseEvent.getClickCount() == 1) {
+                network.getChannel().writeAndFlush(new RequestInfoMessage(srvSelected));
+            }
+
+            if (mouseEvent.getClickCount() == 2) {
+                network.getChannel().writeAndFlush(new DirInMessage(srvSelected));
             }
         }
     }

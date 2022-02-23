@@ -50,6 +50,7 @@ public class Network {
                             }
                         });
                 ChannelFuture future = bootstrap.connect().sync();
+                mainWindow.setConnectionStatus("Connected");
                 System.out.println("Network started");
                 channel = future.channel();
                 channel.closeFuture().sync();
